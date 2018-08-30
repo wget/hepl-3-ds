@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import javax.annotation.Resource;
+import javax.ejb.SessionContext;
 import javax.ejb.Stateful;
 import javax.inject.Inject;
 import javax.jms.JMSConnectionFactory;
@@ -45,6 +46,9 @@ public class AnalysisSessionBean implements AnalysisSessionBeanRemote {
     
     private Patient patient;
     private Doctor doctor;
+    
+    @Resource
+    SessionContext sessionContext;
 
     @Override
     public void setPatient(Patient patient) {
@@ -95,12 +99,12 @@ public class AnalysisSessionBean implements AnalysisSessionBeanRemote {
     
 
     @Override
-    public void loginDoctor(final String loginString) {    
+    public void loginDoctor() {
         EntityManagerFactory emf = Persistence.createEntityManagerFactory("EntitiesDataObjectsPU");
         EntityManager em = emf.createEntityManager();
         List<Doctor> doctors = em.createNamedQuery(
             "Doctor.findByLogin")
-                .setParameter("login", loginString).getResultList();
+                .setParameter("login", this.sessionContext.getCallerPrincipal().getName()).getResultList();
         if (doctors.get(0) == null) {
             return;
         }
