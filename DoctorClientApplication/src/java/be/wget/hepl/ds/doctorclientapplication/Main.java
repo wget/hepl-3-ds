@@ -5,6 +5,8 @@
  */
 package be.wget.hepl.ds.doctorclientapplication;
 
+import javax.swing.UIManager;
+
 /**
  *
  * @author wget
@@ -15,6 +17,19 @@ public class Main {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
+        
+        System.setProperty("awt.useSystemAAFontSettings","lcd");
+        System.setProperty("swing.aatext", "true");
+        
+        // Set the GTK look and feel only if it exists.
+        for (UIManager.LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
+            if ("com.sun.java.swing.plaf.gtk.GTKLookAndFeel".equals(info.getClassName())) {
+                try {
+                    javax.swing.UIManager.setLookAndFeel(info.getClassName());
+                } catch (Exception e) {}
+                break;
+            }
+        }
         DoctorApplicationGui doctorApplicationGui = new DoctorApplicationGui();
         doctorApplicationGui.setVisible(true);
     }

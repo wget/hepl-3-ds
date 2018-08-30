@@ -7,6 +7,7 @@
             <minimum-ant-version>1.6.5</minimum-ant-version>
             <included-library dirs="200">reference.EntitiesDataObjects.jar</included-library>
             <included-library dirs="200">reference.EJBRemoteInterfaces.jar</included-library>
+            <included-library dirs="200">file.reference.mariadb-java-client-2.2.6.jar</included-library>
             <source-roots>
                 <root id="src.dir" name="Source Packages"/>
             </source-roots>

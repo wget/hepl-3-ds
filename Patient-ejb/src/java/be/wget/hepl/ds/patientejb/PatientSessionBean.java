@@ -19,7 +19,7 @@ import javax.persistence.Persistence;
  *
  * @author wget
  */
-@Stateless
+@Stateless(name="PatientSessionBean", mappedName="ejb/PatientSessionBean")
 public class PatientSessionBean implements PatientSessionBeanRemote {
 
     @Override

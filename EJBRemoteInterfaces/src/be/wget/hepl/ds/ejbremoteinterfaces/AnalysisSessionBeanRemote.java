@@ -25,8 +25,14 @@ public interface AnalysisSessionBeanRemote {
 
     Request setRequestedAnalysis(ArrayList<Analysis> analysis, boolean urgent);
 
-    void loginDoctor();
+    boolean loginDoctor();
 
     void setAnalysisResults(final ArrayList<RequestedAnalysis> results);
+
+    String sayHello(String name);
+
+    String getCallerPrincipalName();
+    
+    
     
 }

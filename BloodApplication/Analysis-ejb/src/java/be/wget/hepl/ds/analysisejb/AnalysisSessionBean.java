@@ -31,7 +31,7 @@ import javax.persistence.Persistence;
  *
  * @author wget
  */
-@Stateful
+@Stateful(name="AnalysisSessionBean", mappedName="ejb/AnalysisSessionBean")
 public class AnalysisSessionBean implements AnalysisSessionBeanRemote {
 
     @Resource(mappedName = "jms/be.wget.hepl.ds.topic")
@@ -99,8 +99,8 @@ public class AnalysisSessionBean implements AnalysisSessionBeanRemote {
     
 
     @Override
-    public void loginDoctor() {
-        EntityManagerFactory emf = Persistence.createEntityManagerFactory("EntitiesDataObjectsPU");
+    public boolean loginDoctor() {
+        /*EntityManagerFactory emf = Persistence.createEntityManagerFactory("EntitiesDataObjectsPU");
         EntityManager em = emf.createEntityManager();
         List<Doctor> doctors = em.createNamedQuery(
             "Doctor.findByLogin")
@@ -109,7 +109,8 @@ public class AnalysisSessionBean implements AnalysisSessionBeanRemote {
             return;
         }
         
-        this.doctor = doctors.get(0);
+        this.doctor = doctors.get(0);*/
+        return true;
     }
 
     private void sendToLabo(Request req) {
@@ -141,4 +142,16 @@ public class AnalysisSessionBean implements AnalysisSessionBeanRemote {
     private void sendToDoctor(Request messageData) {
         context.createProducer().send(topic, messageData);
     }
+
+    @Override
+    public String sayHello(String name) {
+        return "Hello " + name;
+    }
+
+    @Override
+    public String getCallerPrincipalName() {
+        return this.sessionContext.getCallerPrincipal().getName();
+    }
+    
+    
 }
