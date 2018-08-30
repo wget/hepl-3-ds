@@ -37,15 +37,17 @@
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
                       <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="patientLastNameTextfield" max="32767" attributes="0"/>
+                          <Component id="patientLastNameTextfield" pref="483" max="32767" attributes="0"/>
                           <Component id="patientLoginTextfield" max="32767" attributes="0"/>
                           <Component id="patientFirstNameTextfield" max="32767" attributes="0"/>
                       </Group>
                   </Group>
                   <Group type="102" alignment="0" attributes="0">
-                      <Component id="patientAddButton" pref="306" max="32767" attributes="0"/>
-                      <EmptySpace min="-2" pref="134" max="-2" attributes="0"/>
-                      <Component id="patientUpdateButton" min="-2" pref="316" max="-2" attributes="0"/>
+                      <Component id="patientAddButton" min="-2" pref="179" max="-2" attributes="0"/>
+                      <EmptySpace max="32767" attributes="0"/>
+                      <Component id="selectPatientButton" min="-2" pref="193" max="-2" attributes="0"/>
+                      <EmptySpace min="-2" pref="57" max="-2" attributes="0"/>
+                      <Component id="patientUpdateButton" min="-2" pref="229" max="-2" attributes="0"/>
                   </Group>
               </Group>
               <EmptySpace min="-2" max="-2" attributes="0"/>
@@ -80,6 +82,7 @@
               <Group type="103" groupAlignment="3" attributes="0">
                   <Component id="patientAddButton" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="patientUpdateButton" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="selectPatientButton" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
           </Group>
@@ -154,6 +157,14 @@
       </Properties>
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="patientAddButtonActionPerformed"/>
+      </Events>
+    </Component>
+    <Component class="javax.swing.JButton" name="selectPatientButton">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Select patient"/>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="selectPatientButtonActionPerformed"/>
       </Events>
     </Component>
   </SubComponents>

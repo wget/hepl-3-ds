@@ -57,6 +57,13 @@ public class Patient implements Serializable {
     public Patient(Integer id) {
         this.id = id;
     }
+    
+    public Patient(Patient p) {
+        this.id = p.id;
+        this.login = p.login;
+        this.firstname = p.firstname;
+        this.lastname = p.lastname;
+    }
 
     public Patient(Integer id, String login) {
         this.id = id;

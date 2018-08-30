@@ -7,10 +7,20 @@ package be.wget.hepl.ds.doctorclientapplication;
 
 import be.wget.hepl.ds.ejbremoteinterfaces.AnalysisSessionBeanRemote;
 import be.wget.hepl.ds.ejbremoteinterfaces.PatientSessionBeanRemote;
+import be.wget.hepl.ds.entitiesdataobjects.Analysis;
 import be.wget.hepl.ds.entitiesdataobjects.Patient;
+import be.wget.hepl.ds.entitiesdataobjects.Request;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.jms.Connection;
+import javax.jms.ConnectionFactory;
+import javax.jms.Destination;
+import javax.jms.JMSException;
+import javax.jms.Message;
+import javax.jms.MessageConsumer;
+import javax.jms.MessageListener;
+import javax.jms.Session;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
@@ -23,7 +33,9 @@ import javax.swing.event.ListSelectionListener;
  *
  * @author wget
  */
-public class DoctorApplicationGui extends javax.swing.JFrame implements ListSelectionListener {
+public class DoctorApplicationGui
+        extends javax.swing.JFrame
+        implements ListSelectionListener, MessageListener {
 
     private AnalysisSessionBeanRemote analysisSessionBean;
     private PatientSessionBeanRemote patientSessionBean;
@@ -52,7 +64,21 @@ public class DoctorApplicationGui extends javax.swing.JFrame implements ListSele
                 (PatientSessionBeanRemote)context.lookup("ejb/PatientSessionBean");
             System.out.println(analysisSessionBean.sayHello("wget"));
             System.out.println(analysisSessionBean.getCallerPrincipalName());
+
+            ConnectionFactory connectionFactory = 
+                (ConnectionFactory)context.lookup("java:comp/DefaultJMSConnectionFactory");
+            Connection connection = connectionFactory.createConnection();
+            Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+            
+            Destination destination =
+                (Destination)context.lookup("jms/be.wget.hepl.ds.topic");
+            MessageConsumer consumer = session.createConsumer(destination);
+            consumer.setMessageListener(this);
+            connection.start();
+            
         } catch (NamingException ex) {
+            Logger.getLogger(DoctorApplicationGui.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (JMSException ex) {
             Logger.getLogger(DoctorApplicationGui.class.getName()).log(Level.SEVERE, null, ex);
         }
 
@@ -105,6 +131,7 @@ public class DoctorApplicationGui extends javax.swing.JFrame implements ListSele
         patientLoginTextfield = new javax.swing.JTextField();
         patientUpdateButton = new javax.swing.JButton();
         patientAddButton = new javax.swing.JButton();
+        selectPatientButton = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -135,6 +162,13 @@ public class DoctorApplicationGui extends javax.swing.JFrame implements ListSele
             }
         });
 
+        selectPatientButton.setText("Select patient");
+        selectPatientButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                selectPatientButtonActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -152,13 +186,15 @@ public class DoctorApplicationGui extends javax.swing.JFrame implements ListSele
                             .addComponent(patientLoginLabel, javax.swing.GroupLayout.PREFERRED_SIZE, 267, javax.swing.GroupLayout.PREFERRED_SIZE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(patientLastNameTextfield)
+                            .addComponent(patientLastNameTextfield, javax.swing.GroupLayout.DEFAULT_SIZE, 483, Short.MAX_VALUE)
                             .addComponent(patientLoginTextfield)
                             .addComponent(patientFirstNameTextfield)))
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(patientAddButton, javax.swing.GroupLayout.DEFAULT_SIZE, 306, Short.MAX_VALUE)
-                        .addGap(134, 134, 134)
-                        .addComponent(patientUpdateButton, javax.swing.GroupLayout.PREFERRED_SIZE, 316, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addComponent(patientAddButton, javax.swing.GroupLayout.PREFERRED_SIZE, 179, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(selectPatientButton, javax.swing.GroupLayout.PREFERRED_SIZE, 193, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(57, 57, 57)
+                        .addComponent(patientUpdateButton, javax.swing.GroupLayout.PREFERRED_SIZE, 229, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -185,7 +221,8 @@ public class DoctorApplicationGui extends javax.swing.JFrame implements ListSele
                 .addGap(18, 18, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(patientAddButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(patientUpdateButton))
+                    .addComponent(patientUpdateButton)
+                    .addComponent(selectPatientButton))
                 .addContainerGap())
         );
 
@@ -219,6 +256,7 @@ public class DoctorApplicationGui extends javax.swing.JFrame implements ListSele
         
         // Update model
         this.patientSessionBean.setPatient(patient);
+        this.patientModel = this.patientSessionBean.getPatients();
         
         // Update UI
         this.updatePatientsListUi();
@@ -242,10 +280,39 @@ public class DoctorApplicationGui extends javax.swing.JFrame implements ListSele
         
         // Update model
         this.patientSessionBean.setPatient(patient);
+        this.patientModel = this.patientSessionBean.getPatients();
         
         // Update UI
         this.updatePatientsListUi();
     }//GEN-LAST:event_patientAddButtonActionPerformed
+
+    private void selectPatientButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_selectPatientButtonActionPerformed
+        if (this.patientsList.getSelectedIndex() == -1) {
+            return;
+        }
+        
+        Patient patient = this.patientModel.get(this.patientsList.getSelectedIndex());
+        
+        this.analysisSessionBean.setPatient(patient);
+
+        ArrayList<Analysis> analyses = this.analysisSessionBean.getAvailableAnalysis();
+        AnalysisListGui analysisListGui = new AnalysisListGui(this, analyses);
+        analysisListGui.setVisible(true);
+        if (analysisListGui.isCancelled()) {
+            analysisListGui.dispose();
+            return;
+        }
+        ArrayList<Analysis> selectedAnalyses = analysisListGui.getSelectedAnalyses();
+        boolean isUrgent = analysisListGui.isUrgent();
+        analysisListGui.dispose();
+        
+        Request request = this.analysisSessionBean.setRequestedAnalysis(selectedAnalyses, isUrgent);
+        JOptionPane.showMessageDialog(
+            this,
+            "Your request id is " + request.getId(),
+            "Request id",
+            JOptionPane.INFORMATION_MESSAGE);
+    }//GEN-LAST:event_selectPatientButtonActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JScrollPane jScrollPane1;
@@ -260,6 +327,7 @@ public class DoctorApplicationGui extends javax.swing.JFrame implements ListSele
     private javax.swing.JButton patientUpdateButton;
     private javax.swing.JList<String> patientsList;
     private javax.swing.JLabel patientsListLabel;
+    private javax.swing.JButton selectPatientButton;
     // End of variables declaration//GEN-END:variables
 
     @Override
@@ -277,5 +345,17 @@ public class DoctorApplicationGui extends javax.swing.JFrame implements ListSele
         this.patientFirstNameTextfield.setText(patient.getFirstname());
         this.patientLastNameTextfield.setText(patient.getLastname());
         this.patientLoginTextfield.setText(patient.getLogin());
+    }
+
+    @Override
+    public void onMessage(Message message) {
+        Request receivedRequest = (Request)message;
+        
+        JOptionPane.showMessageDialog(
+            this,
+            "Your request id is " + receivedRequest.getId(),
+            "Urgent request received",
+            JOptionPane.INFORMATION_MESSAGE);
+            
     }
 }

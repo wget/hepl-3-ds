@@ -42,7 +42,7 @@ public class PatientSessionBean implements PatientSessionBeanRemote {
         EntityManager em = emf.createEntityManager();
         EntityTransaction tx = em.getTransaction();
         tx.begin();
-        em.persist(patient);
+        em.merge(patient);
         tx.commit();
     }
     
