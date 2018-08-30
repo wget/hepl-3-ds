@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<Form version="1.3" maxVersion="1.9" type="org.netbeans.modules.form.forminfo.JFrameFormInfo">
+  <Properties>
+    <Property name="defaultCloseOperation" type="int" value="3"/>
+  </Properties>
+  <SyntheticProperties>
+    <SyntheticProperty name="formSizePolicy" type="int" value="1"/>
+    <SyntheticProperty name="generateCenter" type="boolean" value="false"/>
+  </SyntheticProperties>
+  <AuxValues>
+    <AuxValue name="FormSettings_autoResourcing" type="java.lang.Integer" value="0"/>
+    <AuxValue name="FormSettings_autoSetComponentName" type="java.lang.Boolean" value="false"/>
+    <AuxValue name="FormSettings_generateFQN" type="java.lang.Boolean" value="true"/>
+    <AuxValue name="FormSettings_generateMnemonicsCode" type="java.lang.Boolean" value="false"/>
+    <AuxValue name="FormSettings_i18nAutoMode" type="java.lang.Boolean" value="false"/>
+    <AuxValue name="FormSettings_layoutCodeTarget" type="java.lang.Integer" value="1"/>
+    <AuxValue name="FormSettings_listenerGenerationStyle" type="java.lang.Integer" value="0"/>
+    <AuxValue name="FormSettings_variablesLocal" type="java.lang.Boolean" value="false"/>
+    <AuxValue name="FormSettings_variablesModifier" type="java.lang.Integer" value="2"/>
+  </AuxValues>
+
+  <Layout>
+    <DimensionLayout dim="0">
+      <Group type="103" groupAlignment="0" attributes="0">
+          <Group type="102" attributes="0">
+              <EmptySpace min="-2" max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="0" attributes="0">
+                  <Component id="patientsListLabel" max="32767" attributes="0"/>
+                  <Component id="jScrollPane1" max="32767" attributes="0"/>
+                  <Component id="modifySelectPatientLabel" alignment="0" max="32767" attributes="0"/>
+                  <Group type="102" alignment="0" attributes="0">
+                      <Group type="103" groupAlignment="0" attributes="0">
+                          <Component id="patientFirstNameLabel" min="-2" pref="250" max="-2" attributes="0"/>
+                          <Component id="patientLastNameLabel" min="-2" pref="250" max="-2" attributes="0"/>
+                          <Component id="patientLoginLabel" alignment="0" min="-2" pref="267" max="-2" attributes="0"/>
+                      </Group>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Group type="103" groupAlignment="0" attributes="0">
+                          <Component id="patientLastNameTextfield" max="32767" attributes="0"/>
+                          <Component id="patientLoginTextfield" max="32767" attributes="0"/>
+                          <Component id="patientFirstNameTextfield" max="32767" attributes="0"/>
+                      </Group>
+                  </Group>
+                  <Group type="102" alignment="0" attributes="0">
+                      <Component id="patientRemoveButton" min="-2" pref="150" max="-2" attributes="0"/>
+                      <EmptySpace pref="150" max="32767" attributes="0"/>
+                      <Component id="patientAddButton" pref="156" max="32767" attributes="0"/>
+                      <EmptySpace pref="150" max="32767" attributes="0"/>
+                      <Component id="patientUpdateButton" min="-2" pref="150" max="-2" attributes="0"/>
+                  </Group>
+              </Group>
+              <EmptySpace min="-2" max="-2" attributes="0"/>
+          </Group>
+      </Group>
+    </DimensionLayout>
+    <DimensionLayout dim="1">
+      <Group type="103" groupAlignment="0" attributes="0">
+          <Group type="102" alignment="0" attributes="0">
+              <EmptySpace max="-2" attributes="0"/>
+              <Component id="patientsListLabel" min="-2" max="-2" attributes="0"/>
+              <EmptySpace max="-2" attributes="0"/>
+              <Component id="jScrollPane1" min="-2" pref="100" max="-2" attributes="0"/>
+              <EmptySpace type="separate" max="-2" attributes="0"/>
+              <Component id="modifySelectPatientLabel" min="-2" max="-2" attributes="0"/>
+              <EmptySpace max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="patientFirstNameTextfield" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="patientFirstNameLabel" alignment="3" min="-2" pref="19" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="patientLastNameLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="patientLastNameTextfield" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace max="-2" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="patientLoginLabel" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="patientLoginTextfield" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace type="separate" max="32767" attributes="0"/>
+              <Group type="103" groupAlignment="3" attributes="0">
+                  <Component id="patientAddButton" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="patientRemoveButton" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="patientUpdateButton" alignment="3" min="-2" max="-2" attributes="0"/>
+              </Group>
+              <EmptySpace max="-2" attributes="0"/>
+          </Group>
+      </Group>
+    </DimensionLayout>
+  </Layout>
+  <SubComponents>
+    <Component class="javax.swing.JLabel" name="patientsListLabel">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Patients available in the database:"/>
+      </Properties>
+    </Component>
+    <Container class="javax.swing.JScrollPane" name="jScrollPane1">
+      <AuxValues>
+        <AuxValue name="autoScrollPane" type="java.lang.Boolean" value="true"/>
+      </AuxValues>
+
+      <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
+      <SubComponents>
+        <Component class="javax.swing.JList" name="patientsList">
+          <Properties>
+            <Property name="model" type="javax.swing.ListModel" editor="org.netbeans.modules.form.editors2.ListModelEditor">
+              <StringArray count="0"/>
+            </Property>
+          </Properties>
+          <AuxValues>
+            <AuxValue name="JavaCodeGenerator_TypeParameters" type="java.lang.String" value="&lt;String&gt;"/>
+          </AuxValues>
+        </Component>
+      </SubComponents>
+    </Container>
+    <Component class="javax.swing.JLabel" name="modifySelectPatientLabel">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Modify patient:"/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JLabel" name="patientFirstNameLabel">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="First name:"/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JTextField" name="patientFirstNameTextfield">
+    </Component>
+    <Component class="javax.swing.JLabel" name="patientLastNameLabel">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Last name:"/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JTextField" name="patientLastNameTextfield">
+    </Component>
+    <Component class="javax.swing.JLabel" name="patientLoginLabel">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Login:"/>
+      </Properties>
+    </Component>
+    <Component class="javax.swing.JTextField" name="patientLoginTextfield">
+    </Component>
+    <Component class="javax.swing.JButton" name="patientUpdateButton">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Update patient"/>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="patientUpdateButtonActionPerformed"/>
+      </Events>
+    </Component>
+    <Component class="javax.swing.JButton" name="patientRemoveButton">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Remove patient"/>
+        <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+          <Dimension value="[140, 31]"/>
+        </Property>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="patientRemoveButtonActionPerformed"/>
+      </Events>
+    </Component>
+    <Component class="javax.swing.JButton" name="patientAddButton">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Add patient"/>
+        <Property name="preferredSize" type="java.awt.Dimension" editor="org.netbeans.beaninfo.editors.DimensionEditor">
+          <Dimension value="[140, 31]"/>
+        </Property>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="patientAddButtonActionPerformed"/>
+      </Events>
+    </Component>
+  </SubComponents>
+</Form>
