@@ -356,12 +356,8 @@ public class DoctorApplicationGui
     private void readRequestReceivedButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_readRequestReceivedButtonActionPerformed
 
         
-                RequestsReceivedListGui requestsReceivedListGui = new RequestsReceivedListGui(this, this.requestResultsReceived, this.reArrayList<RequestedAnalysis> requestAnalyses, ArrayList<Analysis> defaultAnalyses) {
-        // all requests
-        //this.requestResultsReceived
-        
-                    ArrayList<Analysis> list =
-                    this.analysisSessionBean.getRequestedAnalysis(currentRequest);
+        RequestsReceivedListGui requestsReceivedListGui = new RequestsReceivedListGui(this, this.requestResultsReceived, this.analysisSessionBean);
+        requestsReceivedListGui.setVisible(true);
     }//GEN-LAST:event_readRequestReceivedButtonActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -410,7 +406,7 @@ public class DoctorApplicationGui
             
             this.requestResultsReceived.add(requestReceived);
             
-            if (requestReceived.getUrgentFlag().equals("1")) {
+            if (requestReceived.getUrgentFlag().equals("true")) {
                 JOptionPane.showMessageDialog(
                     this,
                     "Your request id is " + requestReceived.getId(),

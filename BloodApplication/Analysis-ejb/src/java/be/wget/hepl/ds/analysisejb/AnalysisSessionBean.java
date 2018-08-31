@@ -95,7 +95,7 @@ public class AnalysisSessionBean implements AnalysisSessionBeanRemote {
         request.setPatientId(this.patient.getId());
         request.setDoctorId(this.doctor.getId());
         request.setDatetimeRequest(new Date());
-        request.setUrgentFlag("0");
+        request.setUrgentFlag(urgent ? "true": "false");
 
         EntityManagerFactory emf = Persistence.createEntityManagerFactory("EntitiesDataObjectsPU");
         EntityManager em = emf.createEntityManager();
@@ -193,7 +193,7 @@ public class AnalysisSessionBean implements AnalysisSessionBeanRemote {
         EntityTransaction tx = em.getTransaction();
         tx.begin();
         for (RequestedAnalysis requestedAnalysis: results) {
-            em.persist(requestedAnalysis);    
+            em.merge(requestedAnalysis);    
         }
 
         tx.commit();
