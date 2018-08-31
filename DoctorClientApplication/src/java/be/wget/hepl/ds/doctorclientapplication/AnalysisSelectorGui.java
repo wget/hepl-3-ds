@@ -14,7 +14,7 @@ import javax.swing.table.DefaultTableModel;
  *
  * @author wget
  */
-public class AnalysisListGui extends javax.swing.JFrame {
+public class AnalysisSelectorGui extends javax.swing.JDialog {
 
     private ArrayList<Analysis> analyses;
     private ArrayList<Analysis> selectedAnalysis;
@@ -22,10 +22,13 @@ public class AnalysisListGui extends javax.swing.JFrame {
     private boolean isCancelled;
     
     /**
-     * Creates new form AnalysisListGui
+     * Creates new form AnalysisSelectorGui
      */
-    public AnalysisListGui(Frame parent, ArrayList<Analysis> analyses) {
+    public AnalysisSelectorGui(Frame parent, ArrayList<Analysis> analyses) {
+        super(parent, true);
         initComponents();
+        this.setLocationRelativeTo(parent);
+        
         this.analyses = analyses;
         this.setLocationRelativeTo(parent);
         
@@ -53,26 +56,23 @@ public class AnalysisListGui extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        analysisListLabel = new javax.swing.JLabel();
+        availableAnalysesLabel = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
         analysisTable = new javax.swing.JTable();
         isUrgentCheckbox = new javax.swing.JCheckBox();
         sendButton = new javax.swing.JButton();
         cancelButton = new javax.swing.JButton();
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
-        analysisListLabel.setText("Select the analysis you want to perform:");
+        availableAnalysesLabel.setText("Select the analysis you want to perform:");
 
         analysisTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null}
+
             },
             new String [] {
-                "Id", "Name", "Unit", "Selection"
+                "Id", "Item", "Unit", "Select"
             }
         ) {
             Class[] types = new Class [] {
@@ -94,7 +94,7 @@ public class AnalysisListGui extends javax.swing.JFrame {
 
         isUrgentCheckbox.setText("Is urgent");
 
-        sendButton.setText("Send");
+        sendButton.setText("Ask for selected analysis");
         sendButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 sendButtonActionPerformed(evt);
@@ -113,32 +113,29 @@ public class AnalysisListGui extends javax.swing.JFrame {
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(availableAnalysesLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 838, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
-                        .addContainerGap()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(analysisListLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 720, Short.MAX_VALUE)))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(15, 15, 15)
-                        .addComponent(isUrgentCheckbox, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                        .addComponent(isUrgentCheckbox)
+                        .addGap(0, 0, Short.MAX_VALUE))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addContainerGap()
                         .addComponent(cancelButton)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(sendButton, javax.swing.GroupLayout.PREFERRED_SIZE, 187, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addComponent(sendButton)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(analysisListLabel)
+                .addComponent(availableAnalysesLabel)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 137, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 135, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
                 .addComponent(isUrgentCheckbox)
-                .addGap(82, 82, 82)
+                .addGap(108, 108, 108)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(sendButton)
                     .addComponent(cancelButton))
@@ -149,7 +146,6 @@ public class AnalysisListGui extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void sendButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sendButtonActionPerformed
-    
         DefaultTableModel analysisTableModel = (DefaultTableModel) this.analysisTable.getModel();
         for (int i = 0; i < analysisTableModel.getRowCount(); i++) {
             if (!(Boolean)analysisTableModel.getValueAt(i, 3)) {
@@ -165,6 +161,7 @@ public class AnalysisListGui extends javax.swing.JFrame {
 
     private void cancelButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cancelButtonActionPerformed
         this.isCancelled = true;
+        this.setVisible(false);
     }//GEN-LAST:event_cancelButtonActionPerformed
 
     public ArrayList<Analysis> getSelectedAnalyses() {
@@ -175,13 +172,13 @@ public class AnalysisListGui extends javax.swing.JFrame {
         return this.isUrgent;
     }
     
-    public boolean isCancelled() {
+    public boolean hasBeenCancelled() {
         return this.isCancelled;
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JLabel analysisListLabel;
     private javax.swing.JTable analysisTable;
+    private javax.swing.JLabel availableAnalysesLabel;
     private javax.swing.JButton cancelButton;
     private javax.swing.JCheckBox isUrgentCheckbox;
     private javax.swing.JScrollPane jScrollPane1;

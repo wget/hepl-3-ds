@@ -304,13 +304,23 @@ public class DoctorApplicationGui
         this.analysisSessionBean.setPatient(patient);
 
         ArrayList<Analysis> analyses = this.analysisSessionBean.getAvailableAnalysis();
-        AnalysisListGui analysisListGui = new AnalysisListGui(this, analyses);
+        AnalysisSelectorGui analysisListGui = new AnalysisSelectorGui(this, analyses);
         analysisListGui.setVisible(true);
-        if (analysisListGui.isCancelled()) {
+        if (analysisListGui.hasBeenCancelled()) {
             analysisListGui.dispose();
             return;
         }
+        
         ArrayList<Analysis> selectedAnalyses = analysisListGui.getSelectedAnalyses();
+        if (selectedAnalyses.isEmpty()) {
+            JOptionPane.showMessageDialog(
+                this,
+                "You haven't selected an analysis. Please select one.",
+                "No analysis selected",
+                JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
         boolean isUrgent = analysisListGui.isUrgent();
         analysisListGui.dispose();
         
