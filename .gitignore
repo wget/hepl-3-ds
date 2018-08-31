@@ -5,3 +5,4 @@ dist/
 nbdist/
 
 /LabClientApplication/nbproject/private/
+/MDB-ejb/nbproject/private/

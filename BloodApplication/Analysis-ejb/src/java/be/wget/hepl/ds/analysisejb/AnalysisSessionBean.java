@@ -11,17 +11,32 @@ import be.wget.hepl.ds.entitiesdataobjects.Doctor;
 import be.wget.hepl.ds.entitiesdataobjects.Patient;
 import be.wget.hepl.ds.entitiesdataobjects.Request;
 import be.wget.hepl.ds.entitiesdataobjects.RequestedAnalysis;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.annotation.Resource;
 import javax.ejb.SessionContext;
 import javax.ejb.Stateful;
 import javax.inject.Inject;
+import javax.jms.Connection;
+import javax.jms.ConnectionFactory;
+import javax.jms.Destination;
 import javax.jms.JMSConnectionFactory;
 import javax.jms.JMSContext;
+import javax.jms.JMSException;
+import javax.jms.MessageProducer;
 import javax.jms.Queue;
+import javax.jms.Session;
+import javax.jms.TextMessage;
 import javax.jms.Topic;
+import javax.naming.Context;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.EntityTransaction;
@@ -35,11 +50,14 @@ import javax.persistence.Persistence;
 public class AnalysisSessionBean implements AnalysisSessionBeanRemote {
 
     @Resource(mappedName = "jms/be.wget.hepl.ds.topic")
-    private Topic topic;
+    private Topic be_wget_hepl_ds_topic;
 
     @Inject
     @JMSConnectionFactory("java:comp/DefaultJMSConnectionFactory")
     private JMSContext context;
+
+    @Resource(mappedName = "jms/be.wget.hepl.ds.topic")
+    private Topic topic;
 
     @Resource(mappedName = "jms/be.wget.hepl.ds.queue")
     private Queue queue;
@@ -96,6 +114,8 @@ public class AnalysisSessionBean implements AnalysisSessionBeanRemote {
         
         this.sendRequestToLabo(request);
         
+       
+        
         return request;
     }
     
@@ -140,6 +160,25 @@ public class AnalysisSessionBean implements AnalysisSessionBeanRemote {
         if (requests.get(0).getUrgentFlag().equals("true")) {
             this.sendRequestAnswerToDoctor(requests.get(0));
         }
+        
+        // Send result of analysis time to MDB
+        try {
+            Context c = new InitialContext();
+            ConnectionFactory cf = (ConnectionFactory) c.lookup("jms/be.wget.hepl.ds.topic");
+            Connection conn = cf.createConnection();
+            Session session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
+            Destination destination = (Destination) c.lookup("jms/be.wget.hepl.ds.topic");
+            MessageProducer mp = session.createProducer(destination);
+            TextMessage tm = session.createTextMessage();
+            DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+            String currentDate = df.format(Calendar.getInstance().getTime());
+            tm.setText("toMDB#" + results.get(0).getRequestId() + "#" + currentDate);
+            mp.send(tm);
+        } catch (NamingException ex) {
+            Logger.getLogger(AnalysisSessionBean.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (JMSException ex) {
+            Logger.getLogger(AnalysisSessionBean.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     private void sendRequestAnswerToDoctor(Request messageData) {
@@ -154,6 +193,10 @@ public class AnalysisSessionBean implements AnalysisSessionBeanRemote {
     @Override
     public String getCallerPrincipalName() {
         return this.sessionContext.getCallerPrincipal().getName();
+    }
+
+    private void sendJMSMessageToBe_wget_hepl_ds_topic(String messageData) {
+        
     }
     
     
