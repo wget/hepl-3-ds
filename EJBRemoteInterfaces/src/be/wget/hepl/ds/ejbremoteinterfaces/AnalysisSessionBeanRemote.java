@@ -35,6 +35,6 @@ public interface AnalysisSessionBeanRemote {
 
     ArrayList<Analysis> getRequestedAnalysis(final Request request);
     
-    
+    public ArrayList<RequestedAnalysis> getRequestsResults(int requestId);
     
 }

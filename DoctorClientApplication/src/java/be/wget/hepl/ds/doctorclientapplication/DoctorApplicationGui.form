@@ -44,10 +44,12 @@
                   </Group>
                   <Group type="102" alignment="0" attributes="0">
                       <Component id="patientAddButton" min="-2" pref="179" max="-2" attributes="0"/>
-                      <EmptySpace max="32767" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
                       <Component id="selectPatientButton" min="-2" pref="193" max="-2" attributes="0"/>
-                      <EmptySpace min="-2" pref="57" max="-2" attributes="0"/>
-                      <Component id="patientUpdateButton" min="-2" pref="229" max="-2" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="readRequestReceivedButton" max="32767" attributes="0"/>
+                      <EmptySpace max="-2" attributes="0"/>
+                      <Component id="patientUpdateButton" min="-2" pref="163" max="-2" attributes="0"/>
                   </Group>
               </Group>
               <EmptySpace min="-2" max="-2" attributes="0"/>
@@ -83,6 +85,7 @@
                   <Component id="patientAddButton" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="patientUpdateButton" alignment="3" min="-2" max="-2" attributes="0"/>
                   <Component id="selectPatientButton" alignment="3" min="-2" max="-2" attributes="0"/>
+                  <Component id="readRequestReceivedButton" alignment="3" min="-2" max="-2" attributes="0"/>
               </Group>
               <EmptySpace max="-2" attributes="0"/>
           </Group>
@@ -165,6 +168,14 @@
       </Properties>
       <Events>
         <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="selectPatientButtonActionPerformed"/>
+      </Events>
+    </Component>
+    <Component class="javax.swing.JButton" name="readRequestReceivedButton">
+      <Properties>
+        <Property name="text" type="java.lang.String" value="Read request received"/>
+      </Properties>
+      <Events>
+        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="readRequestReceivedButtonActionPerformed"/>
       </Events>
     </Component>
   </SubComponents>

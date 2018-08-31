@@ -19,6 +19,7 @@ import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageListener;
+import javax.jms.ObjectMessage;
 import javax.jms.Session;
 import javax.naming.Context;
 import javax.naming.InitialContext;
@@ -38,6 +39,8 @@ public class MainGUI extends javax.swing.JFrame implements MessageListener {
      */
     public MainGUI() {
         initComponents();
+        this.setTitle("Labo application");
+        this.setLocationRelativeTo(null);
         
         try {
             Context context;
@@ -78,13 +81,10 @@ public class MainGUI extends javax.swing.JFrame implements MessageListener {
 
         analysisTable.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null}
+
             },
             new String [] {
-                "Id", "Test", "Valeur", "Unité"
+                "Id", "Test", "Value", "Unit"
             }
         ) {
             Class[] types = new Class [] {
@@ -127,7 +127,7 @@ public class MainGUI extends javax.swing.JFrame implements MessageListener {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 284, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 68, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(sendButton, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap())
         );
@@ -164,22 +164,29 @@ public class MainGUI extends javax.swing.JFrame implements MessageListener {
 
     @Override
     public void onMessage(Message message) {
-        currentRequest = (Request)message;
-
-        DefaultTableModel analysisTableModel = 
-            (DefaultTableModel)this.analysisTable.getModel();
         
-        ArrayList<Analysis> list =
-                this.analysisSessionBean.getRequestedAnalysis(currentRequest);
-        for (Analysis a : list) {
-            analysisTableModel.addRow(new Object[] {
-                a.getId(),
-                a.getItem(),
-                0,
-                a.getUnit()});
-        }   
-        
-        sendButton.setEnabled(true);
+        try {
+            this.currentRequest = (Request)((ObjectMessage)message).getObject();
+            
+            System.out.println("Request " + currentRequest.getId() + " received");
+            
+            DefaultTableModel analysisTableModel =
+                    (DefaultTableModel)this.analysisTable.getModel();
+            
+            ArrayList<Analysis> list =
+                    this.analysisSessionBean.getRequestedAnalysis(currentRequest);
+            for (Analysis a : list) {
+                analysisTableModel.addRow(new Object[] {
+                    a.getId(),
+                    a.getItem(),
+                    0,
+                    a.getUnit()});
+            }
+            
+            sendButton.setEnabled(true);
+        } catch (JMSException ex) {
+            Logger.getLogger(MainGUI.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
 

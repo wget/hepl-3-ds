@@ -10,6 +10,7 @@ import be.wget.hepl.ds.entitiesdataobjects.Request;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
@@ -19,6 +20,7 @@ import javax.ejb.MessageDriven;
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageListener;
+import javax.jms.ObjectMessage;
 import javax.jms.TextMessage;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -47,16 +49,18 @@ public class MDBLog implements MessageListener {
     
     @Override
     public void onMessage(Message message) {
-        TextMessage tm = (TextMessage)message;
+        ObjectMessage tm = (ObjectMessage)message;
         try {
-            String[] parsedMessage = tm.getText().split("#");
-            if (!parsedMessage[0].equals("toMDB")) {
+            if (!tm.getStringProperty("destination").equals("mdb")) {
+                System.out.println("DEBUG : message received not concerning MDB. Skipping...");
                 return;
             }
-            
-            int requestId = Integer.parseInt(parsedMessage[1]);
+                    
+            ArrayList<String> payload = (ArrayList<String>)tm.getObject();
+
+            int requestId = Integer.parseInt(payload.get(0));
             DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
-            Date dateResult = df.parse(parsedMessage[2]);
+            Date dateResult = df.parse(payload.get(1));
 
             EntityManagerFactory emf = Persistence.createEntityManagerFactory("EntitiesDataObjectsPU");
             EntityManager em = emf.createEntityManager();

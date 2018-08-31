@@ -8,6 +8,7 @@ package be.wget.hepl.ds.analysisejb;
 import be.wget.hepl.ds.ejbremoteinterfaces.AnalysisSessionBeanRemote;
 import be.wget.hepl.ds.entitiesdataobjects.Analysis;
 import be.wget.hepl.ds.entitiesdataobjects.Doctor;
+import be.wget.hepl.ds.entitiesdataobjects.Log;
 import be.wget.hepl.ds.entitiesdataobjects.Patient;
 import be.wget.hepl.ds.entitiesdataobjects.Request;
 import be.wget.hepl.ds.entitiesdataobjects.RequestedAnalysis;
@@ -30,10 +31,12 @@ import javax.jms.JMSConnectionFactory;
 import javax.jms.JMSContext;
 import javax.jms.JMSException;
 import javax.jms.MessageProducer;
+import javax.jms.ObjectMessage;
 import javax.jms.Queue;
 import javax.jms.Session;
 import javax.jms.TextMessage;
 import javax.jms.Topic;
+import javax.jms.TopicConnectionFactory;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
@@ -49,8 +52,7 @@ import javax.persistence.Persistence;
 @Stateful(name="AnalysisSessionBean", mappedName="ejb/AnalysisSessionBean")
 public class AnalysisSessionBean implements AnalysisSessionBeanRemote {
 
-    @Resource(mappedName = "jms/be.wget.hepl.ds.topic")
-    private Topic be_wget_hepl_ds_topic;
+
 
     @Inject
     @JMSConnectionFactory("java:comp/DefaultJMSConnectionFactory")
@@ -136,8 +138,50 @@ public class AnalysisSessionBean implements AnalysisSessionBeanRemote {
         return true;
     }
 
-    private void sendRequestToLabo(Request req) {
-        context.createProducer().send(queue, req);
+    private void sendRequestToLabo(Request request) {
+        //context.createProducer().send(queue, request);
+        
+        try {
+            Context ctx = new InitialContext();
+            ConnectionFactory connectionFactory =
+                (ConnectionFactory) ctx.lookup("java:comp/DefaultJMSConnectionFactory");
+            Connection connection = connectionFactory.createConnection();
+            Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+            MessageProducer producer = session.createProducer(queue);
+            
+            ObjectMessage message = session.createObjectMessage();
+            message.setStringProperty("destination", "laboapp");
+            
+            message.setObject(request);
+            producer.send(message);
+
+        } catch (NamingException ex) {
+            Logger.getLogger(AnalysisSessionBean.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (JMSException ex) {
+            Logger.getLogger(AnalysisSessionBean.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+        
+        
+        /*try {
+            Context ctx = new InitialContext();
+            TopicConnectionFactory topicConnectionFactory =
+                (TopicConnectionFactory) ctx.lookup("java:comp/DefaultJMSConnectionFactory");
+            Connection connection = topicConnectionFactory.createConnection();
+            Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+            MessageProducer producer = session.createProducer(topic);
+            
+            ObjectMessage message = session.createObjectMessage();
+            message.setStringProperty("destination", "laboapp");
+            
+            message.setObject(request);
+            producer.send(message);
+
+        } catch (NamingException ex) {
+            Logger.getLogger(AnalysisSessionBean.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (JMSException ex) {
+            Logger.getLogger(AnalysisSessionBean.class.getName()).log(Level.SEVERE, null, ex);
+        }*/
     }
 
     @Override
@@ -148,7 +192,10 @@ public class AnalysisSessionBean implements AnalysisSessionBeanRemote {
         EntityManager em = emf.createEntityManager();
         EntityTransaction tx = em.getTransaction();
         tx.begin();
-        em.persist(results);
+        for (RequestedAnalysis requestedAnalysis: results) {
+            em.persist(requestedAnalysis);    
+        }
+
         tx.commit();
 
         // Get the requests for the matching results
@@ -163,17 +210,30 @@ public class AnalysisSessionBean implements AnalysisSessionBeanRemote {
         
         // Send result of analysis time to MDB
         try {
-            Context c = new InitialContext();
-            ConnectionFactory cf = (ConnectionFactory) c.lookup("jms/be.wget.hepl.ds.topic");
-            Connection conn = cf.createConnection();
-            Session session = conn.createSession(false, Session.AUTO_ACKNOWLEDGE);
-            Destination destination = (Destination) c.lookup("jms/be.wget.hepl.ds.topic");
-            MessageProducer mp = session.createProducer(destination);
-            TextMessage tm = session.createTextMessage();
+            Context ctx = new InitialContext();
+            TopicConnectionFactory topicConnectionFactory =
+                (TopicConnectionFactory) ctx.lookup("java:comp/DefaultJMSConnectionFactory");
+            Connection connection = topicConnectionFactory.createConnection();
+            Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+            MessageProducer producer = session.createProducer(topic);
+            
+            ObjectMessage message = session.createObjectMessage();
+            message.setStringProperty("destination", "mdb");
+            
+            ArrayList<String> payload = new ArrayList<>();
+            
+            //TextMessage tm = session.createTextMessage();
             DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
             String currentDate = df.format(Calendar.getInstance().getTime());
-            tm.setText("toMDB#" + results.get(0).getRequestId() + "#" + currentDate);
-            mp.send(tm);
+            
+            payload.add(String.valueOf(results.get(0).getId()));
+            payload.add(currentDate);
+            
+            //tm.setText("toMDB#" +  + "#" + currentDate);
+            //mp.send(tm);
+            
+            message.setObject(payload);
+            producer.send(message);
         } catch (NamingException ex) {
             Logger.getLogger(AnalysisSessionBean.class.getName()).log(Level.SEVERE, null, ex);
         } catch (JMSException ex) {
@@ -183,8 +243,28 @@ public class AnalysisSessionBean implements AnalysisSessionBeanRemote {
     
     
 
-    private void sendRequestAnswerToDoctor(Request messageData) {
-        context.createProducer().send(topic, messageData);
+    private void sendRequestAnswerToDoctor(Request request) {
+        //context.createProducer().send(topic, messageData);
+        
+        try {
+            Context ctx = new InitialContext();
+            TopicConnectionFactory topicConnectionFactory =
+                (TopicConnectionFactory) ctx.lookup("java:comp/DefaultJMSConnectionFactory");
+            Connection connection = topicConnectionFactory.createConnection();
+            Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+            MessageProducer producer = session.createProducer(topic);
+            
+            ObjectMessage message = session.createObjectMessage();
+            message.setStringProperty("destination", "doctorapp");
+            
+            message.setObject(request);
+            producer.send(message);
+
+        } catch (NamingException ex) {
+            Logger.getLogger(AnalysisSessionBean.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (JMSException ex) {
+            Logger.getLogger(AnalysisSessionBean.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     @Override
@@ -195,10 +275,6 @@ public class AnalysisSessionBean implements AnalysisSessionBeanRemote {
     @Override
     public String getCallerPrincipalName() {
         return this.sessionContext.getCallerPrincipal().getName();
-    }
-
-    private void sendJMSMessageToBe_wget_hepl_ds_topic(String messageData) {
-        
     }
 
     @Override
@@ -221,7 +297,24 @@ public class AnalysisSessionBean implements AnalysisSessionBeanRemote {
             array.add(a);
         }
         return array;
-	}
+    }
     
+     @Override
+    public ArrayList<RequestedAnalysis> getRequestsResults(int requestId) {
+         // Receive requested analysis from doctor to scientists
+        EntityManagerFactory emf = Persistence.createEntityManagerFactory("EntitiesDataObjectsPU");
+        EntityManager em = emf.createEntityManager();
+
+        // Get the requests for the matching results
+        List<RequestedAnalysis> reqAnalyses = em.createNamedQuery(
+            "RequestedAnalysis.findByRequestId")
+                .setParameter("requestId", requestId).getResultList();
+        
+        ArrayList<RequestedAnalysis> array = new ArrayList<>();
     
+        for(RequestedAnalysis ra : reqAnalyses) {
+            array.add(ra);
+        }
+        return array;
+    }
 }

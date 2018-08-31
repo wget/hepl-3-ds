@@ -10,6 +10,7 @@ import be.wget.hepl.ds.ejbremoteinterfaces.PatientSessionBeanRemote;
 import be.wget.hepl.ds.entitiesdataobjects.Analysis;
 import be.wget.hepl.ds.entitiesdataobjects.Patient;
 import be.wget.hepl.ds.entitiesdataobjects.Request;
+import be.wget.hepl.ds.entitiesdataobjects.RequestedAnalysis;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -20,6 +21,7 @@ import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
 import javax.jms.MessageListener;
+import javax.jms.ObjectMessage;
 import javax.jms.Session;
 import javax.naming.Context;
 import javax.naming.InitialContext;
@@ -41,6 +43,10 @@ public class DoctorApplicationGui
     private PatientSessionBeanRemote patientSessionBean;
     private ArrayList<Patient> patientModel;
     
+    private ArrayList<Request> requestResultsReceived;
+    
+    private ArrayList<Analysis> defaultAnalyses;
+    
     /**
      * Creates new form PatientsModifyGui
      */
@@ -51,6 +57,8 @@ public class DoctorApplicationGui
         this.setLocationRelativeTo(null);
 
         this.patientModel = new ArrayList<>();
+        this.requestResultsReceived = new ArrayList<>();
+        this.defaultAnalyses = new ArrayList<>();
         this.patientsList.setModel(new DefaultListModel<>());
         this.patientsList.addListSelectionListener(this);
         this.patientUpdateButton.setEnabled(false);
@@ -80,6 +88,8 @@ public class DoctorApplicationGui
             doctorConnectionGui.setVisible(true);
             //if (doctorConnectionGui.isConnectionRequested()) {
                 this.analysisSessionBean.loginDoctor();
+                
+                this.defaultAnalyses = this.analysisSessionBean.getAvailableAnalysis();
             //} else {
             //    System.exit(0);
             //}
@@ -140,6 +150,7 @@ public class DoctorApplicationGui
         patientUpdateButton = new javax.swing.JButton();
         patientAddButton = new javax.swing.JButton();
         selectPatientButton = new javax.swing.JButton();
+        readRequestReceivedButton = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -177,6 +188,13 @@ public class DoctorApplicationGui
             }
         });
 
+        readRequestReceivedButton.setText("Read request received");
+        readRequestReceivedButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                readRequestReceivedButtonActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -199,10 +217,12 @@ public class DoctorApplicationGui
                             .addComponent(patientFirstNameTextfield)))
                     .addGroup(layout.createSequentialGroup()
                         .addComponent(patientAddButton, javax.swing.GroupLayout.PREFERRED_SIZE, 179, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(selectPatientButton, javax.swing.GroupLayout.PREFERRED_SIZE, 193, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(57, 57, 57)
-                        .addComponent(patientUpdateButton, javax.swing.GroupLayout.PREFERRED_SIZE, 229, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(readRequestReceivedButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(patientUpdateButton, javax.swing.GroupLayout.PREFERRED_SIZE, 163, javax.swing.GroupLayout.PREFERRED_SIZE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -230,7 +250,8 @@ public class DoctorApplicationGui
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(patientAddButton, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(patientUpdateButton)
-                    .addComponent(selectPatientButton))
+                    .addComponent(selectPatientButton)
+                    .addComponent(readRequestReceivedButton))
                 .addContainerGap())
         );
 
@@ -332,6 +353,17 @@ public class DoctorApplicationGui
             JOptionPane.INFORMATION_MESSAGE);
     }//GEN-LAST:event_selectPatientButtonActionPerformed
 
+    private void readRequestReceivedButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_readRequestReceivedButtonActionPerformed
+
+        
+                RequestsReceivedListGui requestsReceivedListGui = new RequestsReceivedListGui(this, this.requestResultsReceived, this.reArrayList<RequestedAnalysis> requestAnalyses, ArrayList<Analysis> defaultAnalyses) {
+        // all requests
+        //this.requestResultsReceived
+        
+                    ArrayList<Analysis> list =
+                    this.analysisSessionBean.getRequestedAnalysis(currentRequest);
+    }//GEN-LAST:event_readRequestReceivedButtonActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JLabel modifySelectPatientLabel;
@@ -345,6 +377,7 @@ public class DoctorApplicationGui
     private javax.swing.JButton patientUpdateButton;
     private javax.swing.JList<String> patientsList;
     private javax.swing.JLabel patientsListLabel;
+    private javax.swing.JButton readRequestReceivedButton;
     private javax.swing.JButton selectPatientButton;
     // End of variables declaration//GEN-END:variables
 
@@ -367,13 +400,26 @@ public class DoctorApplicationGui
 
     @Override
     public void onMessage(Message message) {
-        Request receivedRequest = (Request)message;
-        
-        JOptionPane.showMessageDialog(
-            this,
-            "Your request id is " + receivedRequest.getId(),
-            "Urgent request received",
-            JOptionPane.INFORMATION_MESSAGE);
+        try {
+            
+            if (!((ObjectMessage)message).getStringProperty("destination").equals("doctorapp")) {
+                return;
+            }
+            
+            Request requestReceived = (Request)((ObjectMessage)message).getObject();
+            
+            this.requestResultsReceived.add(requestReceived);
+            
+            if (requestReceived.getUrgentFlag().equals("1")) {
+                JOptionPane.showMessageDialog(
+                    this,
+                    "Your request id is " + requestReceived.getId(),
+                    "Urgent request received",
+                    JOptionPane.INFORMATION_MESSAGE);
+            }
+        } catch (JMSException ex) {
+            Logger.getLogger(DoctorApplicationGui.class.getName()).log(Level.SEVERE, null, ex);
+        }
             
     }
 }
