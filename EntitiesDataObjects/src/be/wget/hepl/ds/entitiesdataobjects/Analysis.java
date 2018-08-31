@@ -6,9 +6,7 @@
 package be.wget.hepl.ds.entitiesdataobjects;
 
 import java.io.Serializable;
-import java.util.Collection;
 import javax.persistence.Basic;
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -16,11 +14,9 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
-import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.validation.constraints.Size;
 import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlTransient;
 
 /**
  *
@@ -33,25 +29,21 @@ import javax.xml.bind.annotation.XmlTransient;
     @NamedQuery(name = "Analysis.findAll", query = "SELECT a FROM Analysis a")
     , @NamedQuery(name = "Analysis.findById", query = "SELECT a FROM Analysis a WHERE a.id = :id")
     , @NamedQuery(name = "Analysis.findByItem", query = "SELECT a FROM Analysis a WHERE a.item = :item")
-    , @NamedQuery(name = "Analysis.findByValue", query = "SELECT a FROM Analysis a WHERE a.value = :value")})
+    , @NamedQuery(name = "Analysis.findByUnit", query = "SELECT a FROM Analysis a WHERE a.unit = :unit")})
 public class Analysis implements Serializable {
-
-    @Size(max = 20)
-    @Column(name = "unit")
-    private String unit;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "analysis")
-    private Collection<RequestedAnalysis> requestedAnalysisCollection;
 
     private static final long serialVersionUID = 1L;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Basic(optional = false)
-    @Column(name = "id", nullable = false)
+    @Column(name = "id")
     private Integer id;
-    @Column(name = "item", length = 100)
+    @Size(max = 100)
+    @Column(name = "item")
     private String item;
-    @Column(name = "value", length = 100)
-    private String value;
+    @Size(max = 20)
+    @Column(name = "unit")
+    private String unit;
 
     public Analysis() {
     }
@@ -76,12 +68,12 @@ public class Analysis implements Serializable {
         this.item = item;
     }
 
-    public String getValue() {
-        return value;
+    public String getUnit() {
+        return unit;
     }
 
-    public void setValue(String value) {
-        this.value = value;
+    public void setUnit(String unit) {
+        this.unit = unit;
     }
 
     @Override
@@ -107,23 +99,6 @@ public class Analysis implements Serializable {
     @Override
     public String toString() {
         return "be.wget.hepl.ds.entitiesdataobjects.Analysis[ id=" + id + " ]";
-    }
-
-    public String getUnit() {
-        return unit;
-    }
-
-    public void setUnit(String unit) {
-        this.unit = unit;
-    }
-
-    @XmlTransient
-    public Collection<RequestedAnalysis> getRequestedAnalysisCollection() {
-        return requestedAnalysisCollection;
-    }
-
-    public void setRequestedAnalysisCollection(Collection<RequestedAnalysis> requestedAnalysisCollection) {
-        this.requestedAnalysisCollection = requestedAnalysisCollection;
     }
     
 }

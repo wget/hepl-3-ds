@@ -72,11 +72,11 @@ public class AnalysisSessionBean implements AnalysisSessionBeanRemote {
     @Override
     public Request setRequestedAnalysis(ArrayList<Analysis> analyses, boolean urgent) {
         Request request = new Request();
-        request.setPatientId(this.patient);
-        request.setDoctorId(doctor);
+        request.setPatientId(this.patient.getId());
+        request.setDoctorId(this.doctor.getId());
         request.setDatetimeRequest(new Date());
-        request.setUrgentFlag(urgent ? "true": "false");
-        
+        request.setUrgentFlag("0");
+
         EntityManagerFactory emf = Persistence.createEntityManagerFactory("EntitiesDataObjectsPU");
         EntityManager em = emf.createEntityManager();
         EntityTransaction tx = em.getTransaction();
@@ -85,13 +85,16 @@ public class AnalysisSessionBean implements AnalysisSessionBeanRemote {
         tx.commit();
         
         for (Analysis analysis: analyses) {
-            RequestedAnalysis ra = new RequestedAnalysis(request.getId(), analysis.getId());
+            System.out.println("DEBUG request id: " + request.getId());
+            RequestedAnalysis ra = new RequestedAnalysis();
+            ra.setAnalysisId(analysis.getId());
+            ra.setRequestId(request.getId());
             tx.begin();
             em.persist(ra);
             tx.commit();
         }
         
-        this.sendToLabo(request);
+        this.sendRequestToLabo(request);
         
         return request;
     }
@@ -100,20 +103,20 @@ public class AnalysisSessionBean implements AnalysisSessionBeanRemote {
 
     @Override
     public boolean loginDoctor() {
-        /*EntityManagerFactory emf = Persistence.createEntityManagerFactory("EntitiesDataObjectsPU");
+        EntityManagerFactory emf = Persistence.createEntityManagerFactory("EntitiesDataObjectsPU");
         EntityManager em = emf.createEntityManager();
-        List<Doctor> doctors = em.createNamedQuery(
-            "Doctor.findByLogin")
-                .setParameter("login", this.sessionContext.getCallerPrincipal().getName()).getResultList();
+        List<Doctor> doctors = em.createNamedQuery("Doctor.findAll").getResultList();
+            /*"Doctor.findByLogin")
+                .setParameter("login", this.sessionContext.getCallerPrincipal().getName()).getResultList();*/
         if (doctors.get(0) == null) {
-            return;
+            return false;
         }
         
-        this.doctor = doctors.get(0);*/
+        this.doctor = doctors.get(0);
         return true;
     }
 
-    private void sendToLabo(Request req) {
+    private void sendRequestToLabo(Request req) {
         context.createProducer().send(queue, req);
     }
 
@@ -127,19 +130,19 @@ public class AnalysisSessionBean implements AnalysisSessionBeanRemote {
         tx.begin();
         em.persist(results);
         tx.commit();
-        
+
         // Get the requests for the matching results
         List<Request> requests = em.createNamedQuery(
             "Request.findById")
-                .setParameter("id", results.get(0).getRequest().getId()).getResultList();
+                .setParameter("id", results.get(0).getRequestId()).getResultList();
         
         // Send on topic if this is urgent
         if (requests.get(0).getUrgentFlag().equals("true")) {
-            this.sendToDoctor(requests.get(0));
+            this.sendRequestAnswerToDoctor(requests.get(0));
         }
     }
 
-    private void sendToDoctor(Request messageData) {
+    private void sendRequestAnswerToDoctor(Request messageData) {
         context.createProducer().send(topic, messageData);
     }
 

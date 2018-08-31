@@ -76,6 +76,14 @@ public class DoctorApplicationGui
             consumer.setMessageListener(this);
             connection.start();
             
+            DoctorConnectionGui doctorConnectionGui = new DoctorConnectionGui(this);
+            doctorConnectionGui.setVisible(true);
+            //if (doctorConnectionGui.isConnectionRequested()) {
+                this.analysisSessionBean.loginDoctor();
+            //} else {
+            //    System.exit(0);
+            //}
+            
         } catch (NamingException ex) {
             Logger.getLogger(DoctorApplicationGui.class.getName()).log(Level.SEVERE, null, ex);
         } catch (JMSException ex) {

@@ -6,14 +6,14 @@
 package be.wget.hepl.ds.entitiesdataobjects;
 
 import java.io.Serializable;
+import javax.persistence.Basic;
 import javax.persistence.Column;
-import javax.persistence.EmbeddedId;
 import javax.persistence.Entity;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
+import javax.persistence.Id;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
 import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
 import javax.xml.bind.annotation.XmlRootElement;
 
 /**
@@ -25,41 +25,57 @@ import javax.xml.bind.annotation.XmlRootElement;
 @XmlRootElement
 @NamedQueries({
     @NamedQuery(name = "RequestedAnalysis.findAll", query = "SELECT r FROM RequestedAnalysis r")
-    , @NamedQuery(name = "RequestedAnalysis.findByRequestId", query = "SELECT r FROM RequestedAnalysis r WHERE r.requestedAnalysisPK.requestId = :requestId")
-    , @NamedQuery(name = "RequestedAnalysis.findByAnalysisId", query = "SELECT r FROM RequestedAnalysis r WHERE r.requestedAnalysisPK.analysisId = :analysisId")
-    , @NamedQuery(name = "RequestedAnalysis.findByValue", query = "SELECT r FROM RequestedAnalysis r WHERE r.value = :value")})
+    , @NamedQuery(name = "RequestedAnalysis.findByRequestId", query = "SELECT r FROM RequestedAnalysis r WHERE r.requestId = :requestId")
+    , @NamedQuery(name = "RequestedAnalysis.findByAnalysisId", query = "SELECT r FROM RequestedAnalysis r WHERE r.analysisId = :analysisId")
+    , @NamedQuery(name = "RequestedAnalysis.findByValue", query = "SELECT r FROM RequestedAnalysis r WHERE r.value = :value")
+    , @NamedQuery(name = "RequestedAnalysis.findById", query = "SELECT r FROM RequestedAnalysis r WHERE r.id = :id")})
 public class RequestedAnalysis implements Serializable {
 
     private static final long serialVersionUID = 1L;
-    @EmbeddedId
-    protected RequestedAnalysisPK requestedAnalysisPK;
+    @Basic(optional = false)
+    @NotNull
+    @Column(name = "request_id")
+    private int requestId;
+    @Basic(optional = false)
+    @NotNull
+    @Column(name = "analysis_id")
+    private int analysisId;
     // @Max(value=?)  @Min(value=?)//if you know range of your decimal fields consider using these annotations to enforce field validation
     @Column(name = "value")
     private Double value;
-    @JoinColumn(name = "analysis_id", referencedColumnName = "id", insertable = false, updatable = false)
-    @ManyToOne(optional = false)
-    private Analysis analysis;
-    @JoinColumn(name = "request_id", referencedColumnName = "id", insertable = false, updatable = false)
-    @ManyToOne(optional = false)
-    private Request request;
+    @Id
+    @Basic(optional = false)
+    @NotNull
+    @Column(name = "id")
+    private Integer id;
 
     public RequestedAnalysis() {
     }
 
-    public RequestedAnalysis(RequestedAnalysisPK requestedAnalysisPK) {
-        this.requestedAnalysisPK = requestedAnalysisPK;
+    public RequestedAnalysis(Integer id) {
+        this.id = id;
     }
 
-    public RequestedAnalysis(int requestId, int analysisId) {
-        this.requestedAnalysisPK = new RequestedAnalysisPK(requestId, analysisId);
+    public RequestedAnalysis(Integer id, int requestId, int analysisId) {
+        this.id = id;
+        this.requestId = requestId;
+        this.analysisId = analysisId;
     }
 
-    public RequestedAnalysisPK getRequestedAnalysisPK() {
-        return requestedAnalysisPK;
+    public int getRequestId() {
+        return requestId;
     }
 
-    public void setRequestedAnalysisPK(RequestedAnalysisPK requestedAnalysisPK) {
-        this.requestedAnalysisPK = requestedAnalysisPK;
+    public void setRequestId(int requestId) {
+        this.requestId = requestId;
+    }
+
+    public int getAnalysisId() {
+        return analysisId;
+    }
+
+    public void setAnalysisId(int analysisId) {
+        this.analysisId = analysisId;
     }
 
     public Double getValue() {
@@ -70,26 +86,18 @@ public class RequestedAnalysis implements Serializable {
         this.value = value;
     }
 
-    public Analysis getAnalysis() {
-        return analysis;
+    public Integer getId() {
+        return id;
     }
 
-    public void setAnalysis(Analysis analysis) {
-        this.analysis = analysis;
-    }
-
-    public Request getRequest() {
-        return request;
-    }
-
-    public void setRequest(Request request) {
-        this.request = request;
+    public void setId(Integer id) {
+        this.id = id;
     }
 
     @Override
     public int hashCode() {
         int hash = 0;
-        hash += (requestedAnalysisPK != null ? requestedAnalysisPK.hashCode() : 0);
+        hash += (id != null ? id.hashCode() : 0);
         return hash;
     }
 
@@ -100,7 +108,7 @@ public class RequestedAnalysis implements Serializable {
             return false;
         }
         RequestedAnalysis other = (RequestedAnalysis) object;
-        if ((this.requestedAnalysisPK == null && other.requestedAnalysisPK != null) || (this.requestedAnalysisPK != null && !this.requestedAnalysisPK.equals(other.requestedAnalysisPK))) {
+        if ((this.id == null && other.id != null) || (this.id != null && !this.id.equals(other.id))) {
             return false;
         }
         return true;
@@ -108,7 +116,7 @@ public class RequestedAnalysis implements Serializable {
 
     @Override
     public String toString() {
-        return "be.wget.hepl.ds.entitiesdataobjects.RequestedAnalysis[ requestedAnalysisPK=" + requestedAnalysisPK + " ]";
+        return "be.wget.hepl.ds.entitiesdataobjects.RequestedAnalysis[ id=" + id + " ]";
     }
     
 }

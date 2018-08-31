@@ -16,8 +16,8 @@ public class DoctorConnectionGui extends javax.swing.JDialog {
     /**
      * Creates new form DoctorConnectionGui
      */
-    public DoctorConnectionGui(java.awt.Frame parent, boolean modal) {
-        super(parent, modal);
+    public DoctorConnectionGui(java.awt.Frame parent) {
+        super(parent, true);
         initComponents();
         isDisposed = false;
     }
@@ -67,7 +67,7 @@ public class DoctorConnectionGui extends javax.swing.JDialog {
         this.setVisible(false);
     }//GEN-LAST:event_connectButtonActionPerformed
 
-    public boolean isDisposed() {
+    public boolean isConnectionRequested() {
         return this.isDisposed;
     }
     

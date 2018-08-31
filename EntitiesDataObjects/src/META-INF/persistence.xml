@@ -8,6 +8,10 @@
     <class>be.wget.hepl.ds.entitiesdataobjects.Patient</class>
     <class>be.wget.hepl.ds.entitiesdataobjects.Request</class>
     <class>be.wget.hepl.ds.entitiesdataobjects.RequestedAnalysis</class>
+    <class>be.wget.hepl.ds.entitiesdataobjects.Doctors</class>
+    <class>be.wget.hepl.ds.entitiesdataobjects.Requests</class>
+    <class>be.wget.hepl.ds.entitiesdataobjects.Logs</class>
+    <class>be.wget.hepl.ds.entitiesdataobjects.Patients</class>
     <properties>
       <property name="javax.persistence.jdbc.url" value="jdbc:mariadb://localhost:3306/hepl_distributed_systems"/>
       <property name="javax.persistence.jdbc.user" value="root"/>
