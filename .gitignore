@@ -4,3 +4,4 @@ nbbuild/
 dist/
 nbdist/
 
+/LabClientApplication/nbproject/private/
