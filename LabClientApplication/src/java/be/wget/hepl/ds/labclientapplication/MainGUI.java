@@ -160,11 +160,22 @@ public class MainGUI extends javax.swing.JFrame implements MessageListener {
         }
         
         analysisSessionBean.setAnalysisResults(results);
+        currentRequest = null;
+        
+        analysisTableModel.setRowCount(0);
     }//GEN-LAST:event_sendButtonActionPerformed
 
     @Override
     public void onMessage(Message message) {
         
+        // We should use syncronized instead
+        while (currentRequest != null) {
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException ex) {
+                Logger.getLogger(MainGUI.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
         try {
             this.currentRequest = (Request)((ObjectMessage)message).getObject();
             
