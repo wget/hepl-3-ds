@@ -32,6 +32,8 @@ public interface AnalysisSessionBeanRemote {
     String sayHello(String name);
 
     String getCallerPrincipalName();
+
+    ArrayList<Analysis> getRequestedAnalysis(final Request request);
     
     
     

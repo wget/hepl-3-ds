@@ -180,6 +180,8 @@ public class AnalysisSessionBean implements AnalysisSessionBeanRemote {
             Logger.getLogger(AnalysisSessionBean.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
+    
+    
 
     private void sendRequestAnswerToDoctor(Request messageData) {
         context.createProducer().send(topic, messageData);
@@ -198,6 +200,28 @@ public class AnalysisSessionBean implements AnalysisSessionBeanRemote {
     private void sendJMSMessageToBe_wget_hepl_ds_topic(String messageData) {
         
     }
+
+    @Override
+    public ArrayList<Analysis> getRequestedAnalysis(final Request request) {
+         // Receive requested analysis from doctor to scientists
+        EntityManagerFactory emf = Persistence.createEntityManagerFactory("EntitiesDataObjectsPU");
+        EntityManager em = emf.createEntityManager();
+
+        // Get the requests for the matching results
+        List<RequestedAnalysis> analyses = em.createNamedQuery(
+            "RequestedAnalysis.findByRequestId")
+                .setParameter("requestId", request.getId()).getResultList();
+        
+        ArrayList<Analysis> array = new ArrayList<>();
+        
+        for(RequestedAnalysis ra : analyses) {
+            Analysis a = (Analysis)em.createNamedQuery(
+            "Analysis.findById")
+                .setParameter("id", ra.getAnalysisId()).getSingleResult();
+            array.add(a);
+        }
+        return array;
+	}
     
     
 }

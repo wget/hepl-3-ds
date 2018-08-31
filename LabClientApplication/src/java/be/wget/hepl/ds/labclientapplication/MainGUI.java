@@ -6,6 +6,10 @@
 package be.wget.hepl.ds.labclientapplication;
 
 import be.wget.hepl.ds.ejbremoteinterfaces.AnalysisSessionBeanRemote;
+import be.wget.hepl.ds.entitiesdataobjects.Analysis;
+import be.wget.hepl.ds.entitiesdataobjects.Request;
+import be.wget.hepl.ds.entitiesdataobjects.RequestedAnalysis;
+import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.jms.Connection;
@@ -19,6 +23,8 @@ import javax.jms.Session;
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
+import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
 
 /**
  *
@@ -26,17 +32,20 @@ import javax.naming.NamingException;
  */
 public class MainGUI extends javax.swing.JFrame implements MessageListener {
     private AnalysisSessionBeanRemote analysisSessionBean;
+    private Request currentRequest;
     /**
      * Creates new form MainGUI
      */
     public MainGUI() {
+        initComponents();
+        
         try {
-            initComponents();
             Context context;
             
             context = new InitialContext();
             this.analysisSessionBean =
                     (AnalysisSessionBeanRemote)context.lookup("ejb/AnalysisSessionBean");
+            
             ConnectionFactory connectionFactory =
                     (ConnectionFactory)context.lookup("java:comp/DefaultJMSConnectionFactory");
             Connection connection = connectionFactory.createConnection();
@@ -47,10 +56,7 @@ public class MainGUI extends javax.swing.JFrame implements MessageListener {
             MessageConsumer consumer = session.createConsumer(destination);
             consumer.setMessageListener(this);
             connection.start();
-        
-        } catch (NamingException ex) {
-            Logger.getLogger(MainGUI.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (JMSException ex) {
+        } catch (NamingException | JMSException ex) {
             Logger.getLogger(MainGUI.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
@@ -64,29 +70,122 @@ public class MainGUI extends javax.swing.JFrame implements MessageListener {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        jScrollPane1 = new javax.swing.JScrollPane();
+        analysisTable = new javax.swing.JTable();
+        sendButton = new javax.swing.JButton();
+
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+
+        analysisTable.setModel(new javax.swing.table.DefaultTableModel(
+            new Object [][] {
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null},
+                {null, null, null, null}
+            },
+            new String [] {
+                "Id", "Test", "Valeur", "Unité"
+            }
+        ) {
+            Class[] types = new Class [] {
+                java.lang.Integer.class, java.lang.String.class, java.lang.Double.class, java.lang.String.class
+            };
+            boolean[] canEdit = new boolean [] {
+                false, false, true, true
+            };
+
+            public Class getColumnClass(int columnIndex) {
+                return types [columnIndex];
+            }
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
+            }
+        });
+        analysisTable.getTableHeader().setReorderingAllowed(false);
+        jScrollPane1.setViewportView(analysisTable);
+
+        sendButton.setText("Send");
+        sendButton.setEnabled(false);
+        sendButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                sendButtonActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 400, Short.MAX_VALUE)
+            .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 557, Short.MAX_VALUE)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(sendButton, javax.swing.GroupLayout.PREFERRED_SIZE, 84, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 300, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 284, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 68, Short.MAX_VALUE)
+                .addComponent(sendButton, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap())
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    private void sendButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_sendButtonActionPerformed
+        DefaultTableModel analysisTableModel = 
+            (DefaultTableModel)this.analysisTable.getModel();
+        
+        ArrayList<RequestedAnalysis> results = new ArrayList<RequestedAnalysis>();
+        
+        for(int i=0; i< analysisTableModel.getRowCount(); ++i) {
+            if(analysisTableModel.getValueAt(i, 2).equals(new Double(0))) {
+                JOptionPane.showMessageDialog(
+                this,
+                "You need to fill all values above 0.",
+                "Values left at 0",
+                JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            
+            RequestedAnalysis ra = new RequestedAnalysis();
+            
+            ra.setAnalysisId((Integer) analysisTableModel.getValueAt(i, 0));
+            ra.setRequestId(currentRequest.getId());
+            ra.setValue((Double) analysisTableModel.getValueAt(i, 2));
+            results.add(ra);
+        }
+        
+        analysisSessionBean.setAnalysisResults(results);
+    }//GEN-LAST:event_sendButtonActionPerformed
+
     @Override
     public void onMessage(Message message) {
-        // start popup to record analyses results
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        currentRequest = (Request)message;
+
+        DefaultTableModel analysisTableModel = 
+            (DefaultTableModel)this.analysisTable.getModel();
+        
+        ArrayList<Analysis> list =
+                this.analysisSessionBean.getRequestedAnalysis(currentRequest);
+        for (Analysis a : list) {
+            analysisTableModel.addRow(new Object[] {
+                a.getId(),
+                a.getItem(),
+                0,
+                a.getUnit()});
+        }   
+        
+        sendButton.setEnabled(true);
     }
 
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JTable analysisTable;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JButton sendButton;
     // End of variables declaration//GEN-END:variables
 }
